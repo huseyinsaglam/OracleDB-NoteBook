@@ -1,0 +1,493 @@
+=====================================================================
+ => EXISTS KULLANIMI
+EXISTS ve NOT EXISTS ifadeleride alt sorgudan getirilen değerlerin içerisinde bir değerin olması veya olmaması durumunda işlem yapılmasını sağlar. 
+EXISTS ifadesi kullanıldığında, alt sorguda istenilen şartların yerine getirildiği durumlarda ilgili kaydın listelenmesini sağlar. 
+NOT EXITS ise EXISTS‘in tam tersi olarak alt sorguda istenilen şartların sağlanmadığı durumlarda  ilgili kaydın listelenmesini sağlar. 
+Exists = alt sorgudan gelen kayıtların üst sorguda olup olmadıgını kontrol eder.
+
+select * from dept a where exists (select * from emp b where a.deptno=b.deptno);
+sorgu açıklama = a tablosundaki degerleri listeleme yap.. ama koşulu b tablosunda bulunan a tablosundaki deptNo ile b tablosundaki deptNo olanların ortak olanları listeleme yap.
+
+=====================================================================
+=> LIKE KULLANIMI
+select * from ttsys_bildirim where acıklama like 'A%'; -- A ile başlayanlar
+
+select * from ttsys_bildirim where acıklama like '%Deneme%'; -- Başı ve sonu önemli degil içserinde Deneme geçenler
+
+select * from ttsys_bildirim where acıklama like '%r'; -- Başı önemli degil sonu r ile bitenler
+
+select * from ttsys_bildirim where acıklama like '_e%'; -- ikinci harfi e olanlar 
+
+select * from ttsys_bildirim where acıklama like '%a_'; -- sondan ikinci harfi a olanlar 
+
+=> AS KULLANIMI
+create table emp2 as select * from emp where deptNo <>30 ; -- var olan emp tablosundan yeni bir table oluşturuluyor. deptNo 30 dan farklı olanlar
+
+=> UNION KULLANIMI
+select * from emp UNION select * from emp2; -- iki emp ve emp2 küme birleşimini yapıp sorguyu gösterir. 
+UNION her ikisinde kayıtları tek seferde gösteriri. 
+UNION ALL birden fazla gosterir.
+
+=> INTERSECT KULLANIMI
+select * from emp INTERSECT select * from emp2; --  iki emp ve emp2 küme kesişimini yapıp sorguyu gosterir
+
+=> MINUS KULLANIMI
+select * from emp MINUS select * from emp2; -- emp tablosunda olup emp2 tablosunda olmayanların sorgusunu gösterir.
+
+=> DESC KULLANIMI
+desc TTSYS_ALT_KATEGORI; -- TTSYS_ALT_KATEGORI tablosunda tablo hakkında type ve name hakkında bilgi verir.
+
+=> ORDER BY KULLANIMI
+order by => tabloda sıralama yapar.
+
+select * from TTSYS_ANA_KATEGORI order by ad; -- ad sütunu na göre alfabetik sıralama yapar. artana göre sıralama yapar=> asc ile aynı anlama gelir
+
+select * from TTSYS_ANA_KATEGORI order by ad desc ; -- ad sütunu na göre alfabetik sıralama yapar azalana göre sıralama yapar
+
+select * from TTSYS_ANA_KATEGORI order by ad asc, id desc ;  -- ad sütunu na göre artan id sütunu na göre azalan sıralama yapar
+
+=> MATEMATİKSEL FOKSİYON KULLANIMI
+select abs(90), abs(-90) from dual; -- matematiksel fonksiyon kullanımı
+
+=> KARAKTER FOKSİYON KULLANIMI
+select LENGTH('oracle developer') from dual; -- karakter fonksiyon kullanımı
+
+=> ORACLE DUAL NEDİR
+Oracle Dual Tablosu Nedir? 
+-- Oracle ve bazı veritabanı yönetim sistemleri tarafından varsayılan olarak oluşturulan özel tek kolonlu ve tek satırlık veri içeren tablodur.
+-- Oracleda dual tablosu içerisinde bir tane DUMMY adında VARCHAR2(1) tipinde bir kolon ve X değeri bulunan bir satır yer almaktadır
+-- From anahtar kelimesi olmadan sorgu yazamama sorununu ortadan kaldırmak adına böyle bir varsayılan tablo yapısı oluşturulmuştur.
+=====================================================================
+#### DATE FORMATLARI ####
+
+SYSDATE : 	İşlemcinin çalıştıgı o an tarih ve zamanını döndürür
+CURRENT_DATE : 	Veri tabanının system tarihini alır. Gregorian takvimine göre
+SYSTIMESTAMP: Veri tabanının system tarihini ve zamanını döndürür.
+
+TO_CHAR: İstedigimiz Tarih formatlarına dönüştürme yapabiliriz
+TO_DATE: Girilen string veriyi tarih formatına çevirmek için kullanılır.
+
+TARİH formatlarını iki tüelü degiştirilebilir.
+Birincisi = ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY HH24:MI:SS';
+İkincisi = Tools -> Prefences -> Database -> NLS parametrelerin altında Date Format : MM/DD/YYYY HH24:MI:SS yapabiliriz. oradan Language, Territory,Data Language yapabiliriz.
+
+öRN : SELECT SYSDATE, TO_CHAR(SYSDATE,'DD/MON/YYYY') FROM DUAL;
+öRN : select SESSIONTIMEZONE, to_char(current_date, 'DD/MM/YYYY')from dual;
+öRN : select systimestamp from dual;
+
+
+## JOIN's ######
+** INNER JOIN İLE JOIN AYNI ANLAMA GELMEKTEDIR.
+
+
+select * from T_NS_IFCASE_RLT WHERE ID = 288;
+
+select * from  T_NS_IFCASE_ALT WHERE IFCASE_ID = 288;
+
+select * from T_NS_IFCASE_RLT inner join T_NS_IFCASE_ALT on T_NS_IFCASE_RLT.ID = T_NS_IFCASE_ALT.IFCASE_ID; --her iki tabloda birleştirir ve eşit olan idlerin hepsini listeler
+SELECT * FROM T_NS_IFCASE_RLT INNER JOIN T_NS_IFCASE_ALT ON T_NS_IFCASE_RLT.ID = T_NS_IFCASE_ALT.IFCASE_ID; --her iki tabloda birleştirir ve eşit olan idlerin hepsini listeler
+
+
+## LEFT JOIN, LEFT OUTER JOIN
+
+SELECT column_name(s)
+FROM table1
+LEFT JOIN table2
+ON table1.column_name=table2.column_name;
+
+-- Kümelerde sol tarafta olan küme demektir. 
+-- Yani table 1 tablosundakiler koşulsuz gelir, table 2 tablosundan eşleştirebildiklerini (bu kısımlar kesişim bölümüne karşılık gelir) getirir, eşleştiremezse o alanları NULL olarak getirir.
+-- NOT: left outer join yazmadığımızda null sonucları göstermez.
+
+## RIGHT JOIN, RIGHT OUTER JOIN
+
+SELECT column_name(s)
+FROM table1
+RIGHT JOIN table2
+ON table1.column_name=table2.column_name;
+
+-- Kümelerde sağ taraftaki kümedir. 
+-- Table 2 tablosundaki veriler koşulsuz gelir, Table 1 tablosundan eşleştirebildiklerini (bu kısımlar kesişim bölümüne karşılık gelir) getirir, eşleştiremezse o alanları NULL olarak getirir.
+
+## FULL JOIN, FULL OUTER JOIN
+
+SELECT column_name(s)
+FROM table1
+FULL OUTER JOIN table2
+ON table1.column_name=table2.column_name;
+
+-- Kümelerde birleşime karşılık gelir. 
+-- Her iki kümedeki tüm elemanları getirir. Eşleştirebildiklerine ilgili tablolardaki değerleri, eşleştiremediklerini NULL olarak getirir.
+=====================================================================
+##### GROUP BY KULLANIMI #####
+
+GROUP BY ifadesi gruplama yapar. Yani sonuç kümesini bir veya birden fazla kolona göre gruplar.
+			SELECT ülke FROM kisiler GROUP BY ülke  
+			SELECT * FROM `kisiler` GROUP BY ülke				HATALI SORGU
+GROUP BY’ın kümeleme fonksiyonları ile nasıl anlamlı hale geldiğini göstermek.
+			SELECT ülke, AVG(maaş) FROM `kisiler` GROUP BY ülke			 ülke değerlerine göre gruplandı ve her grubun maaş değerinin ortalaması hesaplanarak yukarıdaki sonuç kümesi elde edildi
+			SELECT ülke, COUNT(*) AS sayı FROM `kisiler` GROUP BY ülke		AS TAKMA İSMİ VERİR. 
+			
+GROUP BY ile birden fazla alan kullanımı:
+SELECT ülke, şehir FROM `kisiler` GROUP BY ülke, şehir				önce ülkelere göre gruplayıp sonra her bir grubu kendi içinde şehirlere göre gruplamak 
+
+SELECT ülke, cinsiyet, AVG(yas), COUNT(*) FROM `kisiler` WHERE maaş > 2000 GROUP BY ülke, cinsiyet					
+Açıklama : önce maaşı 2000’den küçük olan kayıtlar elendi. Yani önce sorgunun WHERE kısmı çalıştırıldı. 
+Sonra kalan kayıtlar üzerinde sorgunun geri kalanı çalıştırıldı. 
+Yani asında bir önceki sorgu tüm tablo yerine tablonun alt kümesi (maaşı 2000’den büyük olanlar) üzerinde çalıştırılmış oldu.
+
+##### HAVING  KULLANIMI ####
+Aslında HAVING ifadesinin işlevi WHERE ifadesininkine çok benziyor. Ancak kümeleme fonksiyonları ile WHERE ifadesi birlikte kullanılamadığından HAVING ifadesine ihtiyaç duyulmuştur.
+WHERE ifadesinin her zaman GROUP BY ifadesinden önce geldiğini HAVING’in ise her zaman sonra GELİR
+
+	SELECT ülke, AVG(maaş) FROM kisiler GROUP BY ülke HAVING AVG(yas) > 30;
+	SELECT şehir, COUNT(*) FROM kisiler GROUP BY şehir HAVING COUNT(*) > 1;
+	SELECT ülke, AVG(maaş) FROM `kisiler` WHERE Cinsiyet=1 GROUP BY ülke HAVING AVG(maaş) > 3000;
+	SELECT ülke, AVG(maaş) FROM `kisiler` WHERE Cinsiyet=1 GROUP BY ülke HAVING COUNT(*) > 1;
+=====================================================================
+#### DML #####
+
+DML komutları commit gerektirir. Data Manimulation Language
+select , insert, update, delete
+
+## SELECT HIERARCHICAL QUERIES ##
+connect by prior = çalışanlarının hangi yöneticiye baglı olduklarını ve seviyelerini listelemek için.
+		select empno, ename, mgr, LEVEL from emp start with mgr is null CONNECT BY PRIOR empno = mgr;
+
+
+sys_connect_by_path = çalışanlarının hangi yöneticiye baglı olduklarını, seviyelerini ve üst makamlarını hiyerarşik olarak göstermek için kullanılır.
+		select empno, ename, mgr, LEVEL, SYS_CONNECT_BY_PATH (ENAME, '/') Path FROM emp start with mgr is null CONNECT BY PRIOR empno = mgr;
+		
+FARKI = SYS_CONNECT_BY_PATH sütuna ek olarak hiyerarşi tarafından ilişki ayrıntıyı anlatır.
+
+## INSERT ##
+kayıt ekler.
+insert into emp (empno, enmame, mgr, job, hiredate, sal) values (8000, 'Huseyin', 7839, 'ORACLEDB', '8-May-2018', 3210);
+
+## SUB QUERIES INSERT ##
+kayıt ekler.
+select * from emp minus select * from emp2;
+
+## UPDATE ##
+update emp set sal = sal + sal*0.1 where ename <> 'KING';   --  <> HARİÇ işareti demektir.
+update emp set deptno = null where empno in (15,50);
+
+## DELETE ##
+delete from emp where comm is null;
+
+## DDL KOMUTU ( DATA DEFINITION LANGUAGE) ##
+CREATE, ALTER, DROP, REPLACE, TRUNCATE
+
+CREATE = NESNE OLUŞTURMAK İÇİN KULLANILIR.
+ALTER = NESNE DEGİŞTİRMEK İÇİN KULLANILIR.
+DROP = NESNE SİLMEK İÇİN KULLANILIR.
+REPLACE = TABLO İSMİ DEGİŞTİRMEK İÇİN KULLANILIR.
+TRUNCATE = TABLODAKİ TÜM KAYITLARI SİLMEK İÇİN KULLANILIR.
+
+## CREATE ##
+CREATE TABLE TAX (
+	EMPNO NUMBER (5),
+	TAXDATE DATE,
+	TAXRATE NUMBER (4,2),
+	TAX NUMBER (15,2));
+
+## SUB QUERIES INSERT ##
+INSERT INTO TAX(EMPNO, TAXDATE, TAXRATE, TAX)
+		SELECT EMPNO, SYSDATE, 500, 700 FROM EMP;
+		
+## CREATE AS ##
+
+CREATE TABLE TAX AS
+	SELECT EMPNO, SYSDATE TAXDATE, 500 TAXRATE, 700 TAX 
+	FROM EMP;
+
+TAXDATE	, TAXRATE, TAX KOLONLAR tax tablosunun field isimlerini map ettik.
+
+create table emp2 as select * from emp;
+
+## ALTER ##
+
+TABLOLARDA YAPISAL DEGİŞİKLİK İÇİN ALTER KOMUTU KULLANILIR.
+
+## TABLOYA YENİ KOLON EKLEMEK İÇİN ##
+EMP TABLOSUNA ADDR, TEL, EMAIL KOLONLARINI EKLEME YAPALIM.
+ALTER TABLE EMP ADD (ADDR VARCHAR2(50), TEL VARCHAR2(10), EMAIL VARCHAR2(30));
+
+## TABLO KOLONLARININ GENİŞLİGİNİ DEGİŞTİRMEK İÇİN KULLANILIR. ##
+
+ALTER TABLE EMP MODIFY ADDR VARCHAR2 (100);
+
+## VERİ TİPİNİ DEGİŞTİRMEK İÇİN KULLANILIR ##
+nOT : VERİ TİPİNİ DEGİŞTİRMEK İÇİN KOLONUN BOŞ OLMASI GEREKİR.
+  ALTER TABLE TAX MODIFY EMAIL NUMBER (15);
+  ALTER TABLE TAX ADDR EMPNO VARCHAR2(20);
+  
+## TABLODAN KOLON SİLMEK İÇİN KULLANILIR. ##
+ALTER TABLE EMP DROP COLUMN EMAIL;
+
+
+## RENAME ##
+NESNE İSİM DEGİŞTİRMEK İÇİN KULLANILIR.
+ESKİ NESNE ÜZERİNDE TANIMLI OLAN İNDEKSLER, BÜTÜN KISITLAMALAR, YETKİLER OTOMATİK OLARAK YENİ NESNEYE GEÇER.
+ESKİ NESNE ÜZERİNDE TANIMLI OLAN SYNONYMLER, VIEWLER, PROSEDURLER, FONKSİYONLER HATAYA DÜŞER.
+
+RENAME EMP2 TO EMP;
+ALTER TABLE EMP RENAME COLUMN TEL TO TELEFON;
+
+## DROP ##
+NESNE SİLMEK İÇİN KULLANILIR.
+NESNE ÜZERİNDE TANIMLI OLAN SYNONYMLER, VIEWLER, PROSEDURLER, FONKSİYONLER HATAYA DÜŞER.
+
+DROP TABLE EMP2;
+
+## TRUNCATE ##
+BİR TABLODAKİ TÜM KAYITLARI SİLMEK İÇİN KULLANILIR.
+TRUNCATE ROLLBACK İLE GERİ ALINMAZ.
+
+TRUNCATE TABLE EMP;
+"	
+## TCL (TRANSACTION CONTROL LANGUAGE ) ##
+
+COMMIT = TRANSACTION KALICI OLARAK VERİTABANINA KAYITLARI IŞLER. 
+ROLLBACK = TRANSACTION YOK SAYILIR.
+SAVEPOINT = DAHA SONRA GERİ ALABİLECEGİMİZ BİR İŞLEM NOKTASI BELİRLER.
+
+## SAVEPOINT ORNEGI ##
+insert into emp (empno, enmame, mgr, job, hiredate, sal) values (8000, 'Huseyin', 7839, 'ORACLEDB', '8-May-2018', 3210);
+SAVEPOINT A;
+
+insert into emp (empno, enmame, mgr, job, hiredate, sal) values (8001, 'Huseyin', 7839, 'ORACLEDB', '8-May-2018', 3210);
+SAVEPOINT B;
+
+insert into emp (empno, enmame, mgr, job, hiredate, sal) values (8003, 'Huseyin', 7839, 'ORACLEDB', '8-May-2018', 3210);
+SAVEPOINT C;
+
+ROLLBACK TO B; -- DEDİGİMİZ ZAMAN ARTIK ROLLBACK C SAYMAZ, A VE B SAYAR
+=====================================================================
+#### DATA CONTROL LANGUAGE (DCL) ####
+
+Veri Kontrol ifadeleri yetkiler için kullanılır.
+GRANT : Kullanıcılara ve rollere yetki vermek için kullanılır.
+REVOKE : Verilen yetkileri geri almak için kullanılır.
+
+#### YETKI TURLERI ####
+Yetki Türleri, Nesne Yetkileri ve Sistem Yetkileri olarak iki grupta toplanır.
+
+Nesne Yetkileri  : Tables, views, synınyms, procedure, functions, package gibi nesneler üzerindeki yetkilere Nesne yetkileri denir.
+ALTER, DELETE, INDEX, INSERT, SELECT, UPDATE, REFERENCES yetkilerdir.
+
+Sistem Yetkileri : Veri tabanına baglanma, nesne oluşturma, kaynak kullanma vs gibi yetkilerdir.
+Sistem yetkileri DBA rolüne sahip kullanıcılar taradından verilir.
+=====================================================================
+#### INTEGRITY CONSTRAINTS ####
+Bütünlük kısıtlamaları, tabloda yanlış bilgilerin girilmesini engellemeyi amaçlayan veri bütünlügü, veri ilişkisi gibi kurallar bütünüdür.
+Bütünlük kısıtlamalarına imkan tanıyan veritabanlarına İlişkisel veri tabanı yönetim sistemi denir.
+Bütünlük kısıtlamaları şunlardır: NOT NULL, PRIMARY KEY, FOREIGN KEY, CHECK, UNIQUE KEY
+
+#### NOT NULL ####
+Tablo oluştururken:
+			CREATE TABLE BOLGELER (
+				BNO NUMBER(3) NOT NULL,
+				BNAME	VARCHAR2(50),
+				BAREA	VARCHAR2(10,2)
+			);
+			
+Tablo Oluşturduktan Sonra:
+			ALTER TABLE BOLGELER MODIFY BNO NUMBER(3) NOT NULL;
+			
+#### PRIMARY KEY ####
+Birincil Anahtar. Kimlik anahtardır.
+İlişkisel veri tabanı yönetim sistemlerinde (Relational Database Management System) tablolar oluşturulurken, tablonun her kaydının kimlik numarası niteliğinde bir kolon oluşturulur
+ve bu kolon içinde tablonun her kaydı için benzersiz(unique) bir değer verilir.  
+Bu tıpkı Vergi Kimlik Numarası ya da TC Kimlik Numarası (National Identification Number) gibi düşünülebilir. 
+Yani, tabloda sorgulama yaparken istediğimiz kaydı bulmak için sadece o kaydın benzersiz kimlik ID’sini vermemiz yeterli olacaktır.
+
+Not : 1 Tabloda yalnızca 1 tane primary Key olabilir. Ama birden fazla sütuna primary key degeri verilebilir. Sadece PRIMARY KEY tabloda bir kere kullanmaya izin verir.
+
+1. KULLANIM	= 
+Tablo oluştururken:
+			CREATE TABLE BOLGELER (
+				BNO NUMBER(3) PRIMARY KEY,
+				BNAME	VARCHAR2(50),
+				BAREA	VARCHAR2(10,2)
+			);
+			
+2. KULLANIM: 
+			CREATE TABLE BOLGELER (
+				BNO NUMBER(3),
+				BNAME	VARCHAR2(50),
+				BAREA	VARCHAR2(10,2),
+				CONSTRAINT PK_BNO PRIMARY KEY (BNO)
+			);
+CONSTRAINT burada PK_BNO adlı takma isim veriyoruz. Sonra primary key olarak kullanmak istedigimiz alanları işaretliyoruz.			
+			Birden fazla sütuna primary key degeri verilebilir. Aşagıdaki örnekte oldugu gibi.
+			CREATE TABLE BOLGELER (
+				BNO NUMBER(3),
+				SNO NUMBER(3),
+				BNAME	VARCHAR2(50),
+				BAREA	VARCHAR2(10,2),
+				CONSTRAINT PK_BNOSNO PRIMARY KEY (BNO,SNO)
+			);
+			
+NOT : Ideal kullanım 2. Kullanımdır.
+
+Tablo Oluşturduktan sonra:
+		ALTER TABLE BOLGELER ADD CONSTRAINT PK_BNO PRIMARY KEY (BNO);
+
+#### FOREIGN KEY ####
+Foreign Key (Dış Anahtardır) başka bir tablonun Primary Key'ine yada Unique Key'ine referans vermek demektir.
+FOREIGN KEy tanımladıgında , diger tablonun referans verilen kolonunda olmayan deger FOREIGN KEY tanımlanan tablonun kolununada girilmez.
+
+Foreign Key (yabancı anahtar) ikincil anahtar olarak da ifade edilmektedir. 
+Bir veri tablosuna girilebilecek değerleri başka bir veri tablosundaki alanlarla ilişkilendirmeye yarar. 
+Özetle, başka bir tablonun birincil anahtarının bir diğer tablo içerisinde yer almasıdır. 
+Çoğunlukla bir ana tablo (parent) ile alt tablonun (child) ilişkilendirilmesinde kullanılır. 
+Bu sayede olası veri tekrarlarının önüne geçilebilmekte ve ilerleyen zamanda söz konusu olabilecek güncellemelerde ilgili verilerin her yerde güncellenmesi sağlanabilmektedir.
+
+Tablo oluştururken:
+			CREATE TABLE SEHIRLER (
+				BNO NUMBER(3),
+				SNO	NUMBER(3),
+				POPUL NUMBER(8),
+				POSTCODE VARCHAR2(10),
+				CONSTRAINT FK_BNO FOREIGN KEY (BNO) REFERENCES BOLGELER (BNO)				
+			);
+			
+Tablo Oluşturduktan sonra:
+		ALTER TABLE SEHIRLER ADD CONSTRAINT FK_BNO FOREIGN KEY (BNO) REFERENCES BOLGELER(BNO);
+		
+#### CHECK ####
+Bazı kolonlara girilecek degerleri kısıtlayabiliriz. Bu durumda ilgili kolonlara CHECK CONSTRAINT EKLERIZ.
+
+Tablo oluştururken:
+			CREATE TABLE SEHIRLER (
+				BNO NUMBER(3),
+				SNO	NUMBER(3),
+				POPUL NUMBER(8),
+				POSTCODE VARCHAR2(10),
+				CONSTRAINT CK_POSTCODE CHECK (POSTCODE>1000)				
+			);
+			
+Tablo Oluşturduktan sonra:
+		ALTER TABLE SEHIRLER ADD CONSTRAINT CK_POSTCODE CHECK (POSTCODE>1000);
+		
+#### UNIQUE KEY ####
+UNIQUE KEY, PRIMARY KEY ' e benzerdir. Başka bir tablodan UNIQUE key'e FOREIGN KEY tanımlanabilir.
+ PRIMARY KEY  ile UNIQUE KEY  arasında iki fark vardır.
+ 
+ Birincisi : Bir tabloda sadece bir tane PRIMARY KEY olabilir. UNIQUE KEY birden fazla olabilir.
+ İkincisi : PRIMARY KEY null kabul etmez. UNIQUE KEY null kabul eder.
+ 
+ Tablo oluştururken:
+			CREATE TABLE SEHIRLER (
+				BNO NUMBER(3),
+				SNO	NUMBER(3),
+				POPUL NUMBER(8),
+				POSTCODE VARCHAR2(10),
+				CONSTRAINT UQ_POSTCODE UNIQUE (POSTCODE)			
+			);
+			
+Tablo Oluşturduktan sonra:
+		ALTER TABLE SEHIRLER ADD CONSTRAINT UQ_POSTCODE UNIQUE (POSTCODE);
+ 
+ 
+ #### ENABLE/DISABLE ####
+ CONSTRAINT LERİ AKTIF VEYA PASIF ÇEKEBİLİRİZ.
+ 
+ ALTER TABLE SEHIRLER DISABLE CONSTRAINT UQ_POSTCODE;
+ ALTER TABLE SEHIRLER ENABLE CONSTRAINT UQ_POSTCODE;
+=====================================================================
+#### SEQUENCES ####
+Sequence'ler sayı üreteçlerdir. Özelikle PRIMARY KEY ve UNIQUE Key kolonların degerleri için kullanılırlar.
+
+Create Sequences 
+		CREATE SEQUENCE SEQ_EMPNO
+			START WITH 1								// 1 DEN BAŞLASIN
+			INCREMENT BY 1								//  1 ER 1 ER ARTSIN
+			MINVALUE 1									
+			MAXVALUE 100
+			CYCLE										// MAXVALUE DEGERİNE ULAŞTIGINDA TEKRAR 1 DEN BAŞLASIN. NOCYCLE YAZSAYDIK MAXVALUE DEGERİNE ULAŞTIGINDA SEQUENCE ARTIK SAYI URETMEZDI.								
+			CACHE 10;									// 10 ADET SAYIYI SGA DA SAKLASIN. SAYI ISTENDIGINDE SGA DAN OKUNSUN. 
+														// ÇOK TRANSACTI ON GEREKEN ISLEMLERDE BU SEKILDE KULLANMAK HIZ KAZANDIRIR. NOCACHE YAZSAYDIK, NUMARALARI DISKTEN OKUYUP GETIRECEKTI
+
+
+SEQUENCE DEN SAYI ALMAK = SEQUENCE DEN SAYI ALMAK NEXTVAL IFADESIYLE, SON ALINAN SAYIYI GORMEK ICIN DE CURRVAL IFADESIYLE OLUR.	
+SEQUENCE PARAMETRELERINI DEGISTIRMEK = ALTER SEQUENCE SEQ_EMPNO MAXVALUE 200;	
+
+		ORNEK : 
+
+		CREATE SEQUENCE SEQ_SIPARIS
+			START WITH 1								
+			INCREMENT BY 1								
+			MINVALUE 1									
+			MAXVALUE 100
+			CYCLE										
+			CACHE 10;	
+
+CREATE TABLE SIPARIS (SIPNO NUMBER(3), URUN VARCHAR2(20), MIKTAR NUMBER(4));			
+INSERT INTO SIPARIS(SIPNO, URUN, MIKTAR) VALUES (SEQ_SIPARIS.NEXTVAL, 'Ayakkabı',3);
+ALTER SEQUENCE SEQ_SIPARIS MAXVALUE 50000;
+DROP SEQUENCES SEQ_SIPARIS;
+
+=====================================================================
+
+SELECT * FROM USER_SEQUENCES;   // DB DEKI SEQUENCE GOSTERIR
+SELECT * FROM USER_TABLES;		// DB DEKI TABLES GOSTERIR
+SELECT * FROM USER_VIEWS;		// DB DEKI VIEWS GOSTERIR
+
+=====================================================================
+#### VIEWS ####
+Views'ler mantıksal tablolardır. VeriTabanında yer işgal etmezler. Bir veya birden fazla Tablo ve/veya view üzerinden yeni viewler tanımlanabilir.
+
+CREATING VIEWS: 
+
+		CREATE OR REPLACE VIEW WILILCE
+		(
+			ILNO,
+			ILISMI,
+			ILCEISMI,
+			ILCE_SAYISI
+		) AS
+		SELECT IL_NO,
+			ISIM ILISMI,
+			NULL ILCEISMI,
+			(SELECT COUNT(*) FROM ILCELER B WHERE B.IL_NO = A.IL_NO) ILCE_SAYISI
+		FROM ILLER A
+			UNION
+		SELECT IL_NO,
+			NULL ILISMI,
+			ISIM,
+			NULL
+		FROM ILCELER;
+		
+NOT : BURADA UNION DA BIRLESIM YAPILACAGI ZAMAN SELECT TE HER IKI SUTUN ESLESTIRMENINDE ISIMLERI AYNI OLMALIDIR.. 
+ILLER TABLOSU ILCELER TABLOSUNUN SUTUN ESLESTIRMEDE ISIMLARI AYNI OLMALIDIR.
+		
+SELECT * FROM WILILCE;
+
+CREATE OR REPLACE VIEW EMP_DEP1 AS 
+	SELECT EMPNO, ENAME, SAL, A.DEPTNO, DNAME FROM EMP A, DEPT B WHERE A.DEPTNO = B.DEPTNO;
+	
+	
+DROP VIEW EMP_DEP1;
+
+CREATE OR REPLACE = DEMEK ILK ONCE DROP EDER SILER SONRA CREATE EDER.
+CREATE = DEMEK TABLO VARSA HATA VERIR YOKSA CREATE EDER.
+=====================================================================
+#### INDEXSLER ####
+Indexler sorguları hızlandırmak için kullanılır. Sorgularda tablo kolonları üzerinden yapılan filtreler(WHERE CONDITIONS), kolonlar üzerinde
+index varsa hızlı çalışacaktır.
+
+Çokca Null deger olma ihtimali olan kolonlar üzerinde Index oluşturmayın.
+Kolon sayısı az olan tablolarda index oluşturmayın.
+Çokca tekrarlanan deger taşıyan kolonlar üzerinde index oluşturmayın. Bu tür kolonlar üzerinde BITMAP Index daha performanslıdır.
+Index sayısını sınırlı tutun. Çünkü indexler sorguyu hızlandırır ama DML(insert, update,delete ) işlemlerini yavaşlatır.
+Fonksiyon Bazlı Indexs = kolonlarda ziyade degerler üzerinden tanımlanır. Mesela EMP tablosundaki SAL ve COM kolonlarının toplamı sorgunun WHERE kısmında
+sıkça kullanılıyorsa şu şekilde bir indeks tanımlama sorguyu hızlandıracaktır. => create index ind_salcomm on emp (sal+comm);
+
+composite index => create index ind_salcomm on emp (ename);
+bitmap index =>  create bitmap index bind_salcomm on emp (ename);
+function based index => create index find_salcomm on emp (sal+comm);
+tanımlı indexleri listelemek için => select * from user_indexes;
+index silmek için => drop index ind_salcomm;
+=====================================================================
